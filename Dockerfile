@@ -4,13 +4,14 @@ WORKDIR /app
 
 RUN apk add --no-cache openssl
 
-RUN rm -f /root/.npmrc
-
-COPY package.json ./
-RUN npm install --registry https://registry.npmjs.org/
+COPY package.json package-lock.json ./
+RUN npm ci
 
 COPY . .
 
 RUN npx prisma generate
 
-ENTRYPOINT ["sh", "-c", "npx prisma migrate deploy && node index.js"]
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["sh", "/usr/local/bin/entrypoint.sh"]
+CMD ["node", "index.js"]

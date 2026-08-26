@@ -8,7 +8,7 @@ const port = 3000;
 app.use(express.json());
 
 app.get("/health", (req, res) => {
-    res.json({ status: "not ok" });
+    res.json({ status: "ok" });
 });
 
 app.post("/folders", async (req, res) => {
