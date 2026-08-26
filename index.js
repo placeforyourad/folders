@@ -1,5 +1,5 @@
-const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const express = require("express");
+const { PrismaClient } = require("@prisma/client");
 
 const app = express();
 const prisma = new PrismaClient();
@@ -7,15 +7,15 @@ const port = 3000;
 
 app.use(express.json());
 
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
+app.get("/health", (req, res) => {
+    res.json({ status: "not ok" });
 });
 
-app.post('/folders', async (req, res) => {
+app.post("/folders", async (req, res) => {
     try {
         const { name } = req.body;
         const folder = await prisma.folder.create({
-            data: { name }
+            data: { name },
         });
         res.json(folder);
     } catch (error) {
@@ -23,7 +23,7 @@ app.post('/folders', async (req, res) => {
     }
 });
 
-app.get('/folders', async (req, res) => {
+app.get("/folders", async (req, res) => {
     try {
         const folders = await prisma.folder.findMany();
         res.json(folders);
@@ -32,13 +32,13 @@ app.get('/folders', async (req, res) => {
     }
 });
 
-app.put('/folders/:id', async (req, res) => {
+app.put("/folders/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const { name } = req.body;
         const folder = await prisma.folder.update({
             where: { id: parseInt(id) },
-            data: { name }
+            data: { name },
         });
         res.json(folder);
     } catch (error) {
@@ -46,13 +46,13 @@ app.put('/folders/:id', async (req, res) => {
     }
 });
 
-app.delete('/folders/:id', async (req, res) => {
+app.delete("/folders/:id", async (req, res) => {
     try {
         const { id } = req.params;
         await prisma.folder.delete({
-            where: { id: parseInt(id) }
+            where: { id: parseInt(id) },
         });
-        res.json({ message: 'Folder deleted' });
+        res.json({ message: "Folder deleted" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
