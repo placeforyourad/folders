@@ -18,7 +18,7 @@
         "start": "node src/main.js",
         "studio": "npx prisma studio",
         "docker:up": "docker compose up -d",
-        "dev": "docker compose up --build"
+        "dev": "docker compose up --build -d"
     },
     "devDependencies": {
         "prettier": "3.9.6"
