@@ -7,7 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Folder {
-  id   Int    @id @default(autoincrement())
+model Item {
+  id   String    @id @default(uuid()) @db.Uuid
   name String
+  type String
+  parentId String? @map("parent_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  parent Item? @relation("ItemHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Item[]   @relation("ItemHierarchy")
+
+  @@map("items")
 }

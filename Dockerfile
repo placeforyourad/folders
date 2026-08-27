@@ -11,7 +11,7 @@ RUN npx prisma generate
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
-RUN useradd -m appuser
+RUN adduser -D appuser
 USER appuser
 
 ENTRYPOINT ["sh", "/usr/local/bin/entrypoint.sh"]
