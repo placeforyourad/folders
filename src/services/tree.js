@@ -1,4 +1,4 @@
-const { findAllItems } = require("../repo/repo");
+import { findAllItems } from "../repo/repo.js";
 
 function groupByParent(items) {
     const childrenByParent = new Map();
@@ -46,4 +46,4 @@ async function getTree() {
     };
 }
 
-module.exports = { getTree };
+export { getTree };

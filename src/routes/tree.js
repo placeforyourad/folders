@@ -1,9 +1,9 @@
-const express = require("express");
-const { getTree } = require("../services/service");
+import express from "express";
+import { getTree } from "../services/tree.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", async (req, res, next) => {
     try {
         const tree = await getTree();
 
@@ -13,10 +13,8 @@ router.get("/", async (req, res) => {
 
         res.json(tree);
     } catch (error) {
-        console.error("Ошибка при построении дерева:", error);
-
-        res.status(500).json({ error: "Внутренняя ошибка сервера" });
+        next(error);
     }
 });
 
-module.exports = router;
+export default router;
