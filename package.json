@@ -1,7 +1,7 @@
 {
     "name": "folders",
     "version": "1.0.0",
-    "main": "index.js",
+    "main": "src/main.js",
     "keywords": [],
     "author": "",
     "license": "ISC",
@@ -15,7 +15,7 @@
         "schema": "prisma/schema.prisma"
     },
     "scripts": {
-        "start": "node index.js",
+        "start": "node src/main.js",
         "studio": "npx prisma studio",
         "docker:up": "docker compose up -d",
         "dev": "docker compose up --build"

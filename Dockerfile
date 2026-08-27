@@ -15,4 +15,4 @@ RUN adduser -D appuser
 USER appuser
 
 ENTRYPOINT ["sh", "/usr/local/bin/entrypoint.sh"]
-CMD ["node", "index.js"]
+CMD ["node", "src/main.js"]
