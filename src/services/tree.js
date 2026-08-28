@@ -1,54 +1,16 @@
-import { findAllItems, findItemById, insertItem, deleteItemById } from "../db/gateway.js";
-import { ValidationError, ForbiddenError } from "../errors.js";
-
-function groupByParent(items) {
-    const childrenByParent = new Map();
-
-    for (const item of items) {
-        const siblings = childrenByParent.get(item.parentId) ?? [];
-        siblings.push(item);
-        childrenByParent.set(item.parentId, siblings);
-    }
-
-    return childrenByParent;
-}
-
-function buildTree(parentId, childrenByParent) {
-    const children = childrenByParent.get(parentId) ?? [];
-
-    return children.map((item) => {
-        const node = { id: item.id, name: item.name, type: item.type };
-
-        if (item.type === "folder") {
-            node.children = buildTree(item.id, childrenByParent);
-        }
-
-        return node;
-    });
-}
+import itemsRepository from "../repository/repository.js";
+import { ValidationError, NotFoundError, ForbiddenError } from "../errors.js";
 
 async function getTree() {
-    const items = await findAllItems();
-    const root = items.find(
-        (item) => item.name === "root" && item.parentId === null,
-    );
-
-    if (!root) {
-        return null;
-    }
-
-    const childrenByParent = groupByParent(items);
-
-    return {
-        id: root.id,
-        name: root.name,
-        type: root.type,
-        children: buildTree(root.id, childrenByParent),
-    };
+    return itemsRepository.getTree();
 }
 
 async function createItem({ name, type, parentId }) {
-    const parent = await findItemById(parentId);
+    const parent = await itemsRepository.findById(parentId);
+
+    if (!parent) {
+        throw new NotFoundError("Родительский элемент не найден");
+    }
 
     if (parent.type !== "folder") {
         throw new ValidationError(
@@ -56,17 +18,21 @@ async function createItem({ name, type, parentId }) {
         );
     }
 
-    return insertItem({ name: name.trim(), type, parentId });
+    return itemsRepository.create({ name: name.trim(), type, parentId });
 }
 
 async function deleteItem(id) {
-    const item = await findItemById(id);
+    const item = await itemsRepository.findById(id);
+
+    if (!item) {
+        throw new NotFoundError("Элемент не найден");
+    }
 
     if (item.name === "root" && item.parentId === null) {
         throw new ForbiddenError("Root нельзя удалить");
     }
 
-    await deleteItemById(id);
+    await itemsRepository.delete(id);
 
     return { message: "Item deleted successfully" };
 }
