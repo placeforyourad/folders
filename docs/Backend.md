@@ -139,7 +139,7 @@ GET /api/tree/search?query={строка}
 ### 3. Добавить файл или папку
 
 ```http
-POST /api/items
+POST /api/tree/item
 ```
 
 Тело запроса:
@@ -176,7 +176,7 @@ POST /api/items
 ### 4. Удалить файл или папку
 
 ```http
-DELETE /api/items/{id}
+DELETE /api/tree/item/{id}
 ```
 
 Правила:

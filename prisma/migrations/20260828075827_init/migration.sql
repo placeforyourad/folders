@@ -1,12 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Folder` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropTable
-DROP TABLE "Folder";
-
 -- CreateTable
 CREATE TABLE "items" (
     "id" UUID NOT NULL,

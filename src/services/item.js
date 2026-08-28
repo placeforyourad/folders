@@ -1,12 +1,13 @@
-import { findItemById, insertItem } from "../repo/repo.js";
-import { ValidationError, NotFoundError } from "../errors.js";
+import { findItemById, insertItem, deleteItemById } from "../repo/repo.js";
+import { ValidationError, NotFoundError, ForbiddenError } from "../errors.js";
+import * as validate from "../utils/validators.js";
 
 const VALID_TYPES = ["folder", "file"];
 const UUID_REGEX =
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function validateCreateItemInput({ name, type, parentId }) {
-    if (typeof name !== "string" || name.trim() === "") {
+    if (!validate.isNonEmptyString(name)) {
         throw new ValidationError(
             "Поле name обязательно и не может быть пустым",
         );
@@ -16,7 +17,10 @@ function validateCreateItemInput({ name, type, parentId }) {
         throw new ValidationError("Поле type должно быть 'folder' или 'file'");
     }
 
-    if (typeof parentId !== "string" || !UUID_REGEX.test(parentId)) {
+    if (
+        !validate.isNonEmptyString(parentId) ||
+        !validate.isValidUuid(parentId)
+    ) {
         throw new ValidationError(
             "Поле parentId обязательно и должно быть валидным UUID",
         );
@@ -41,4 +45,26 @@ async function createItem({ name, type, parentId }) {
     return insertItem({ name: name.trim(), type, parentId });
 }
 
-export { createItem };
+async function deleteItem(id) {
+    if (!validate.isNonEmptyString(id) || !validate.isValidUuid(id)) {
+        throw new ValidationError(
+            "Поле id обязательно и должно быть валидным UUID",
+        );
+    }
+
+    const item = await findItemById(id);
+
+    if (!item) {
+        throw new NotFoundError("Элемент не найден");
+    }
+
+    if (item.name === "root" && item.parentId === null) {
+        throw new ForbiddenError("Root нельзя удалить");
+    }
+
+    await deleteItemById(id);
+
+    return { message: "Item deleted successfully" };
+}
+
+export { createItem, deleteItem };

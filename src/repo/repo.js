@@ -16,4 +16,10 @@ async function insertItem({ name, type, parentId }) {
     });
 }
 
-export { findAllItems, findItemById, insertItem };
+async function deleteItemById(id) {
+    return prisma.item.delete({
+        where: { id },
+    });
+}
+
+export { findAllItems, findItemById, insertItem, deleteItemById };

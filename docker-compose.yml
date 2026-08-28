@@ -10,6 +10,8 @@ services:
             - "5432:5432"
         volumes:
             - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U user -d mydb"]
 
     app:
         build: .
@@ -18,7 +20,8 @@ services:
         environment:
             DATABASE_URL: "postgresql://user:12345@postgres:5432/mydb"
         depends_on:
-            - postgres
+            postgres:
+                condition: service_healthy
 
 volumes:
     postgres_data:

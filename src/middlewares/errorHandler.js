@@ -1,6 +1,6 @@
 import { ValidationError, NotFoundError, ForbiddenError } from "../errors.js";
 
-function errorHandler(error, req, res) {
+function errorHandler(error, req, res, next) {
     if (error instanceof ValidationError) {
         return res.status(400).json({ error: error.message });
     }
