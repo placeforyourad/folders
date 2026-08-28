@@ -3,12 +3,13 @@ import {
     getTreeHandler,
     createItemHandler,
     deleteItemHandler,
-} from "../controller.js";
+} from "../controllers/treeController.js";
+import { validateCreateItem, validateDeleteItem } from "../utils/validators.js";
 
 const router = express.Router();
 
 router.get("/", getTreeHandler);
-router.post("/item", createItemHandler);
-router.delete("/item/:id", deleteItemHandler);
+router.post("/item", [validateCreateItem, createItemHandler]);
+router.delete("/item/:id", [validateDeleteItem, deleteItemHandler]);
 
 export default router;

@@ -1,4 +1,5 @@
-import { findAllItems } from "../repo/repo.js";
+import { findAllItems, findItemById, insertItem, deleteItemById } from "../db/gateway.js";
+import { ValidationError, ForbiddenError } from "../errors.js";
 
 function groupByParent(items) {
     const childrenByParent = new Map();
@@ -46,4 +47,28 @@ async function getTree() {
     };
 }
 
-export { getTree };
+async function createItem({ name, type, parentId }) {
+    const parent = await findItemById(parentId);
+
+    if (parent.type !== "folder") {
+        throw new ValidationError(
+            "Нельзя создать элемент внутри файла: родитель должен быть папкой",
+        );
+    }
+
+    return insertItem({ name: name.trim(), type, parentId });
+}
+
+async function deleteItem(id) {
+    const item = await findItemById(id);
+
+    if (item.name === "root" && item.parentId === null) {
+        throw new ForbiddenError("Root нельзя удалить");
+    }
+
+    await deleteItemById(id);
+
+    return { message: "Item deleted successfully" };
+}
+
+export { getTree, createItem, deleteItem };

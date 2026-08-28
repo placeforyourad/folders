@@ -1,9 +1,8 @@
-import * as trees from "./services/tree.js";
-import * as items from "./services/item.js";
+import { getTree, createItem, deleteItem } from "../services/tree.js";
 
 async function getTreeHandler(req, res, next) {
     try {
-        const tree = await trees.getTree();
+        const tree = await getTree();
 
         if (!tree) {
             return res.status(404).json({ error: "Root не найден" });
@@ -18,7 +17,7 @@ async function getTreeHandler(req, res, next) {
 async function createItemHandler(req, res, next) {
     try {
         const { name, type, parentId } = req.body;
-        const item = await items.createItem({ name, type, parentId });
+        const item = await createItem({ name, type, parentId });
 
         res.status(201).json({
             id: item.id,
@@ -34,7 +33,7 @@ async function createItemHandler(req, res, next) {
 async function deleteItemHandler(req, res, next) {
     try {
         const { id } = req.params;
-        await items.deleteItem(id);
+        await deleteItem(id);
 
         res.status(204).send();
     } catch (error) {

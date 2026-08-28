@@ -1,4 +1,5 @@
 import prisma from "../prisma.js";
+import { NotFoundError } from "../errors.js";
 
 async function findAllItems() {
     return prisma.item.findMany({
@@ -7,7 +8,13 @@ async function findAllItems() {
 }
 
 async function findItemById(id) {
-    return prisma.item.findUnique({ where: { id } });
+    const item = await prisma.item.findUnique({ where: { id } });
+
+    if (!item) {
+        throw new NotFoundError("Элемент не найден");
+    }
+
+    return item;
 }
 
 async function insertItem({ name, type, parentId }) {
