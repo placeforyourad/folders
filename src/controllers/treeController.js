@@ -54,7 +54,7 @@ async function searchItemHandler(req, res, next) {
             return res.status(404).json({ error: "Ничего не найдено" });
         }
 
-        res.json(item);
+        res.json({ results: item });
     } catch (error) {
         next(error);
     }
