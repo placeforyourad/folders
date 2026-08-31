@@ -50,10 +50,6 @@ async function searchItemHandler(req, res, next) {
     try {
         const item = await searchItem(req.query.query);
 
-        if (!item) {
-            return res.status(404).json({ error: "Ничего не найдено" });
-        }
-
         res.json({ results: item });
     } catch (error) {
         next(error);
