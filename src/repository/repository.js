@@ -42,9 +42,13 @@ class ItemsRepository {
             }
         }
 
-        const leafMatches = matches.filter((match) => !ancestorIds.has(match.id));
+        const leafMatches = matches.filter(
+            (match) => !ancestorIds.has(match.id),
+        );
 
-        return leafMatches.map((match) => this.#buildPathToRoot(match, itemsById));
+        return leafMatches.map((match) =>
+            this.#buildPathToRoot(match, itemsById),
+        );
     }
 
     async #loadIndexed() {

@@ -27,11 +27,11 @@ cd folders
 # 2. Настроить .env
 cp .env.example .env
 
-# 3. Запустить всё (PostgreSQL + приложение)
+# 3. Запустить всё
 npm run dev
 ```
 
->Посмотреть на базу через Prisma Studio, сначала выполните `npm install`, затем `npm run studio`.
+> Посмотреть на базу через Prisma Studio, сначала выполните `npm install`, затем `npm run studio`.
 
 После запуска:
 
@@ -43,12 +43,12 @@ npm run dev
 
 ### Переменные `.env`
 
-| Переменная | Описание |
-|------------|----------|
-| `POSTGRES_USER` | Пользователь PostgreSQL |
-| `POSTGRES_PASSWORD` | Пароль PostgreSQL |
-| `POSTGRES_DB` | Имя базы данных |
-| `DATABASE_URL` | Строка подключения для локального запуска (`localhost`) |
+| Переменная          | Описание                                  |
+| ------------------- | ----------------------------------------- |
+| `POSTGRES_USER`     | Пользователь PostgreSQL                   |
+| `POSTGRES_PASSWORD` | Пароль PostgreSQL                         |
+| `POSTGRES_DB`       | Имя базы данных                           |
+| `DATABASE_URL`      | Строка подключения для локального запуска |
 
 ### `.env.example`
 
@@ -62,13 +62,13 @@ DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
 
 ## Модель данных
 
-| Поле | Тип | Описание |
-|------|-----|----------|
-| `id` | UUID | Уникальный идентификатор |
-| `name` | String | Имя папки/файла |
-| `type` | String | `folder` или `file` |
-| `parentId` | UUID? | `null` для корня, иначе id родительской папки |
-| `createdAt` | DateTime | Дата создания |
+| Поле        | Тип      | Описание                                      |
+| ----------- | -------- | --------------------------------------------- |
+| `id`        | UUID     | Уникальный идентификатор                      |
+| `name`      | String   | Имя папки/файла                               |
+| `type`      | String   | `folder` или `file`                           |
+| `parentId`  | UUID?    | `null` для корня, иначе id родительской папки |
+| `createdAt` | DateTime | Дата создания                                 |
 
 Правила:
 
@@ -230,10 +230,9 @@ DELETE /api/tree/item/{id}
 
 ---
 
-
 ## Скрипты npm
 
-| Команда | Действие |
-|---------|----------|
-| `npm run dev` | Собрать и запустить всё в Docker|
-| `npm run studio` | Открыть Prisma Studio|
+| Команда          | Действие                         |
+| ---------------- | -------------------------------- |
+| `npm run dev`    | Собрать и запустить всё в Docker |
+| `npm run studio` | Открыть Prisma Studio            |
