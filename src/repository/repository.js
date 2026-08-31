@@ -18,15 +18,42 @@ class ItemsRepository {
     }
 
     async getTree() {
-        const items = await this.findAll();
+        const { items, childrenByParent } = await this.#loadIndexed();
         const root = items.find((item) => item.parentId === null);
 
         if (!root) {
             return null;
         }
 
-        const childrenByParent = this.#groupByParent(items);
         return this.#buildNode(root, childrenByParent);
+    }
+
+    async search(query) {
+        const { items, itemsById } = await this.#loadIndexed();
+
+        const matches = items.filter((item) =>
+            item.name.toLowerCase().includes(query.toLowerCase()),
+        );
+
+        const ancestorIds = new Set();
+        for (const match of matches) {
+            for (const id of this.#collectAncestorIds(match, itemsById)) {
+                ancestorIds.add(id);
+            }
+        }
+
+        const leafMatches = matches.filter((match) => !ancestorIds.has(match.id));
+
+        return leafMatches.map((match) => this.#buildPathToRoot(match, itemsById));
+    }
+
+    async #loadIndexed() {
+        const items = await this.findAll();
+        return {
+            items,
+            itemsById: new Map(items.map((item) => [item.id, item])),
+            childrenByParent: this.#groupByParent(items),
+        };
     }
 
     #groupByParent(items) {
@@ -52,6 +79,35 @@ class ItemsRepository {
         }
 
         return node;
+    }
+
+    #getPathToRoot(item, itemsById) {
+        const path = [item];
+        let current = item;
+
+        while (current.parentId) {
+            current = itemsById.get(current.parentId);
+            path.push(current);
+        }
+
+        return path;
+    }
+
+    #collectAncestorIds(item, itemsById) {
+        const path = this.#getPathToRoot(item, itemsById);
+        return new Set(path.slice(1).map((ancestor) => ancestor.id));
+    }
+
+    #buildPathToRoot(item, itemsById) {
+        const path = this.#getPathToRoot(item, itemsById);
+        const childrenByParent = new Map();
+
+        for (let i = 1; i < path.length; i++) {
+            childrenByParent.set(path[i].id, [path[i - 1]]);
+        }
+
+        const root = path[path.length - 1];
+        return this.#buildNode(root, childrenByParent);
     }
 }
 

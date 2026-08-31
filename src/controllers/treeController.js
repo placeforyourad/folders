@@ -1,4 +1,9 @@
-import { getTree, createItem, deleteItem } from "../services/tree.js";
+import {
+    getTree,
+    createItem,
+    deleteItem,
+    searchItem,
+} from "../services/tree.js";
 
 async function getTreeHandler(req, res, next) {
     try {
@@ -41,4 +46,23 @@ async function deleteItemHandler(req, res, next) {
     }
 }
 
-export { getTreeHandler, createItemHandler, deleteItemHandler };
+async function searchItemHandler(req, res, next) {
+    try {
+        const item = await searchItem(req.query.query);
+
+        if (!item) {
+            return res.status(404).json({ error: "Ничего не найдено" });
+        }
+
+        res.json(item);
+    } catch (error) {
+        next(error);
+    }
+}
+
+export {
+    getTreeHandler,
+    createItemHandler,
+    deleteItemHandler,
+    searchItemHandler,
+};

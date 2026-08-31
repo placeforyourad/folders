@@ -37,4 +37,8 @@ async function deleteItem(id) {
     return { message: "Item deleted successfully" };
 }
 
-export { getTree, createItem, deleteItem };
+async function searchItem(query) {
+    return itemsRepository.search(query.trim());
+}
+
+export { getTree, createItem, deleteItem, searchItem };

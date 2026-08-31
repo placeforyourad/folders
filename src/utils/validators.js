@@ -56,4 +56,16 @@ function validateDeleteItem(req, res, next) {
     next();
 }
 
-export { validateCreateItem, validateDeleteItem };
+function validateSearchItem(req, res, next) {
+    if (!isNonEmptyString(req.query.query)) {
+        return next(
+            new ValidationError(
+                "Параметр query обязателен и не может быть пустым",
+            ),
+        );
+    }
+
+    next();
+}
+
+export { validateCreateItem, validateDeleteItem, validateSearchItem };
