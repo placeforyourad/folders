@@ -33,8 +33,6 @@ async function deleteItem(id) {
     }
 
     await itemsRepository.delete(id);
-
-    return { message: "Item deleted successfully" };
 }
 
 async function searchItem(query) {

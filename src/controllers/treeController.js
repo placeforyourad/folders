@@ -40,7 +40,7 @@ async function deleteItemHandler(req, res, next) {
         const { id } = req.params;
         await deleteItem(id);
 
-        res.status(204).send();
+        res.json({ message: "Элемент удалён" });
     } catch (error) {
         next(error);
     }
