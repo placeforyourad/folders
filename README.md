@@ -2,21 +2,6 @@
 
 REST API для управления иерархическим деревом папок и файлов. Построено на **Node.js + Express + Prisma + PostgreSQL**, разворачивается через **Docker Compose**.
 
-## Архитектура
-
-Проект разделён на слои:
-
-```
-Роуты (routes) → Контроллеры (controllers) → Сервисы (services) → Репозиторий (repository) → БД (Prisma)
-```
-
-- **routes** — описание эндпоинтов и подключение middleware-валидаторов
-- **controllers** — обработка HTTP-запросов/ответов, статус-коды
-- **services** — бизнес-логика
-- **repository** — доступ к данным, построение дерева, поиск
-- **utils/validators** — валидация входных данных
-- **middlewares/errorHandler** — централизованная обработка ошибок
-
 ## Старт
 
 ```bash
@@ -31,7 +16,7 @@ cp .env.example .env
 npm run dev
 ```
 
-> Посмотреть на базу через Prisma Studio, сначала выполните `npm install`, затем `npm run studio`.
+> Посмотреть на базу через Prisma Studio выполните `npm run studio`.
 
 После запуска:
 

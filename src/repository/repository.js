@@ -2,7 +2,7 @@ import prisma from "../prisma.js";
 
 class ItemsRepository {
     async findAll() {
-        return prisma.item.findMany({ orderBy: { name: "asc" } });
+        return prisma.item.findMany();
     }
 
     async findById(id) {
