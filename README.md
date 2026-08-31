@@ -21,7 +21,7 @@ REST API для управления иерархическим деревом �
 
 ```bash
 # 1. Клонировать репозиторий
-git clone <repo-url>
+git clone https://github.com/placeforyourad/folders
 cd folders
 
 # 2. Настроить .env
