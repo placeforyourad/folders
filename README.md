@@ -224,7 +224,7 @@ DELETE /api/tree/item/{id}
 
 ```json
 {
-    "message": "Item deleted successfully"
+    "message": "Элемент удалён"
 }
 ```
 
