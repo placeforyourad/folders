@@ -18,6 +18,15 @@ async function createItem({ name, type, parentId }) {
         );
     }
 
+    const children = await itemsRepository.findChildren(parentId);
+    const duplicate = children.some((c) => c.name === name.trim());
+
+    if (duplicate) {
+        throw new ValidationError(
+            "Элемент с таким именем уже существует в этой папке",
+        );
+    }
+
     return itemsRepository.create({ name: name.trim(), type, parentId });
 }
 

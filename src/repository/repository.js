@@ -9,6 +9,12 @@ class ItemsRepository {
         return prisma.item.findUnique({ where: { id } });
     }
 
+    async findChildren(parentId) {
+        return prisma.item.findMany({
+            where: { parentId },
+        });
+    }
+
     async create({ name, type, parentId }) {
         return prisma.item.create({ data: { name, type, parentId } });
     }
@@ -29,33 +35,75 @@ class ItemsRepository {
     }
 
     async search(query) {
-        const { items, itemsById } = await this.#loadIndexed();
+        const matches = await prisma.item.findMany({
+            where: { name: { contains: query, mode: "insensitive" } },
+        });
 
-        const matches = items.filter((item) =>
-            item.name.toLowerCase().includes(query.toLowerCase()),
-        );
+        if (matches.length === 0) return [];
 
-        const ancestorIds = new Set();
-        for (const match of matches) {
-            for (const id of this.#collectAncestorIds(match, itemsById)) {
-                ancestorIds.add(id);
-            }
+        const matchIds = new Set(matches.map((m) => m.id));
+        const byId = new Map(matches.map((m) => [m.id, m]));
+
+        let frontier = matches;
+
+        while (frontier.length) {
+            const parentIds = [
+                ...new Set(
+                    frontier
+                        .map((i) => i.parentId)
+                        .filter((id) => id && !byId.has(id)),
+                ),
+            ];
+
+            if (!parentIds.length) break;
+
+            const parents = await prisma.item.findMany({
+                where: { id: { in: parentIds } },
+            });
+
+            for (const p of parents) byId.set(p.id, p);
+
+            frontier = parents;
         }
 
-        const leafMatches = matches.filter(
-            (match) => !ancestorIds.has(match.id),
-        );
+        const results = [];
 
-        return leafMatches.map((match) =>
-            this.#buildPathToRoot(match, itemsById),
-        );
+        for (const match of matches) {
+            const path = this.#pathToRoot(match, byId);
+
+            if (path.some((a) => a.id !== match.id && matchIds.has(a.id)))
+                continue;
+
+            results.push(this.#buildPathFromAncestors(path));
+        }
+
+        return results;
+    }
+
+    #pathToRoot(item, byId) {
+        const path = [];
+
+        for (let node = item; node; node = byId.get(node.parentId) ?? null) {
+            path.unshift(node);
+        }
+
+        return path;
+    }
+
+    #buildPathFromAncestors(path) {
+        const childrenByParent = new Map();
+
+        for (let i = 1; i < path.length; i++) {
+            childrenByParent.set(path[i].id, [path[i - 1]]);
+        }
+
+        return this.#buildNode(path[path.length - 1], childrenByParent);
     }
 
     async #loadIndexed() {
         const items = await this.findAll();
         return {
             items,
-            itemsById: new Map(items.map((item) => [item.id, item])),
             childrenByParent: this.#groupByParent(items),
         };
     }
@@ -83,35 +131,6 @@ class ItemsRepository {
         }
 
         return node;
-    }
-
-    #getPathToRoot(item, itemsById) {
-        const path = [item];
-        let current = item;
-
-        while (current.parentId) {
-            current = itemsById.get(current.parentId);
-            path.push(current);
-        }
-
-        return path;
-    }
-
-    #collectAncestorIds(item, itemsById) {
-        const path = this.#getPathToRoot(item, itemsById);
-        return new Set(path.slice(1).map((ancestor) => ancestor.id));
-    }
-
-    #buildPathToRoot(item, itemsById) {
-        const path = this.#getPathToRoot(item, itemsById);
-        const childrenByParent = new Map();
-
-        for (let i = 1; i < path.length; i++) {
-            childrenByParent.set(path[i].id, [path[i - 1]]);
-        }
-
-        const root = path[path.length - 1];
-        return this.#buildNode(root, childrenByParent);
     }
 }
 
