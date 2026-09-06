@@ -31,7 +31,32 @@ class ItemsRepository {
             return null;
         }
 
-        return this.#buildNode(root, childrenByParent);
+        return this.#buildNodeShallow(root, childrenByParent);
+    }
+
+    async getChildren(parentId) {
+        const children = await this.findChildren(parentId);
+        const childrenIds = children.map((c) => c.id);
+
+        const subChildren = await prisma.item.findMany({
+            where: { parentId: { in: childrenIds } },
+        });
+
+        const hasChildrenMap = new Map();
+
+        for (const child of children) {
+            hasChildrenMap.set(
+                child.id,
+                subChildren.some((sc) => sc.parentId === child.id),
+            );
+        }
+
+        return children.map((child) => ({
+            id: child.id,
+            name: child.name,
+            type: child.type,
+            hasChildren: hasChildrenMap.get(child.id) ?? false,
+        }));
     }
 
     async search(query) {
@@ -128,6 +153,23 @@ class ItemsRepository {
             node.children = children.map((child) =>
                 this.#buildNode(child, childrenByParent),
             );
+        }
+
+        return node;
+    }
+
+    #buildNodeShallow(item, childrenByParent) {
+        const node = { id: item.id, name: item.name, type: item.type };
+
+        if (item.type === "folder") {
+            const children = childrenByParent.get(item.id) ?? [];
+            node.children = children.map((child) => ({
+                id: child.id,
+                name: child.name,
+                type: child.type,
+                hasChildren:
+                    (childrenByParent.get(child.id) ?? []).length > 0,
+            }));
         }
 
         return node;

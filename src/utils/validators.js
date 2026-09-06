@@ -19,18 +19,18 @@ function validate(source, rules) {
     };
 }
 
+const validateGetItem = validate("params", [
+    ["id", isUuid, "Поле id обязательно и должно быть валидным UUID"],
+]);
+
 const validateCreateItem = validate("body", [
     ["name", isNonEmptyString, "Поле name обязательно и не может быть пустым"],
     ["type", isValidType, "Поле type должно быть 'folder' или 'file'"],
     ["parentId", isUuid, "Поле parentId обязательно и должно быть валидным UUID",],
 ]);
 
-const validateDeleteItem = validate("params", [
-    ["id", isUuid, "Поле id обязательно и должно быть валидным UUID"],
-]);
-
 const validateSearchItem = validate("query", [
     ["query", isNonEmptyString, "Параметр query обязателен и не может быть пустым",],
 ]);
 
-export { validateCreateItem, validateDeleteItem, validateSearchItem };
+export { validateGetItem, validateCreateItem, validateSearchItem };

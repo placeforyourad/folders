@@ -1,5 +1,6 @@
 import {
     getTree,
+    getChildren,
     createItem,
     deleteItem,
     searchItem,
@@ -56,8 +57,20 @@ async function searchItemHandler(req, res, next) {
     }
 }
 
+async function getChildrenHandler(req, res, next) {
+    try {
+        const { id } = req.params;
+        const children = await getChildren(id);
+
+        res.json(children);
+    } catch (error) {
+        next(error);
+    }
+}
+
 export {
     getTreeHandler,
+    getChildrenHandler,
     createItemHandler,
     deleteItemHandler,
     searchItemHandler,

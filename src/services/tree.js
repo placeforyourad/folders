@@ -5,6 +5,16 @@ async function getTree() {
     return itemsRepository.getTree();
 }
 
+async function getChildren(parentId) {
+    const parent = await itemsRepository.findById(parentId);
+
+    if (!parent) {
+        throw new NotFoundError("Родительский элемент не найден");
+    }
+
+    return itemsRepository.getChildren(parentId);
+}
+
 async function createItem({ name, type, parentId }) {
     const parent = await itemsRepository.findById(parentId);
 
@@ -48,4 +58,4 @@ async function searchItem(query) {
     return itemsRepository.search(query.trim());
 }
 
-export { getTree, createItem, deleteItem, searchItem };
+export { getTree, createItem, deleteItem, searchItem, getChildren };
