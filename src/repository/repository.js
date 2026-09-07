@@ -43,27 +43,12 @@ class ItemsRepository {
 
     async getChildren(parentId) {
         const children = await this.findChildren(parentId);
-        const childrenIds = children.map((c) => c.id);
 
         const subChildren = await prisma.item.findMany({
-            where: { parentId: { in: childrenIds } },
+            where: { parentId: { in: children.map((c) => c.id) } },
         });
 
-        const hasChildrenMap = new Map();
-
-        for (const child of children) {
-            hasChildrenMap.set(
-                child.id,
-                subChildren.some((sc) => sc.parentId === child.id),
-            );
-        }
-
-        return children.map((child) => ({
-            id: child.id,
-            name: child.name,
-            type: child.type,
-            hasChildren: hasChildrenMap.get(child.id) ?? false,
-        }));
+        return this.#mapChildrenWithPresence(children, subChildren);
     }
 
     async search(query) {
@@ -73,7 +58,7 @@ class ItemsRepository {
             },
         });
 
-        if (!matches.length) return null;
+        if (!matches.length) return [];
 
         const byId = new Map(matches.map((item) => [item.id, item]));
         await this.#collectAncestors(matches, byId);
@@ -147,6 +132,15 @@ class ItemsRepository {
         return root;
     }
 
+    #mapChildrenWithPresence(children, subChildren) {
+        return children.map((child) => ({
+            id: child.id,
+            name: child.name,
+            type: child.type,
+            hasChildren: subChildren.some((sc) => sc.parentId === child.id),
+        }));
+    }
+
     #buildNodeShallow(item, childrenByParent) {
         const node = {
             id: item.id,
@@ -157,12 +151,10 @@ class ItemsRepository {
 
         if (item.type === "folder") {
             const children = childrenByParent.get(item.id) ?? [];
-            node.children = children.map((child) => ({
-                id: child.id,
-                name: child.name,
-                type: child.type,
-                hasChildren: (childrenByParent.get(child.id) ?? []).length > 0,
-            }));
+            const subChildren = children.flatMap(
+                (c) => childrenByParent.get(c.id) ?? [],
+            );
+            node.children = this.#mapChildrenWithPresence(children, subChildren);
         }
 
         return node;

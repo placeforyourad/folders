@@ -18,7 +18,7 @@ export default function App() {
         <div className="app">
             <SearchForm onResult={onSearchResult} />
 
-            {searchResult && !searchResult.tree ? (
+            {searchResult && searchResult.tree?.length === 0 ? (
                 <p className="search-empty">Ничего не найдено</p>
             ) : (
                 <ForceExpandedContext.Provider value={forceExpandedIds}>

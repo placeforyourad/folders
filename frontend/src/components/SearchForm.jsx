@@ -14,7 +14,7 @@ export default function SearchForm({ onResult }) {
         }
 
         const data = await searchItems(trimmed);
-        onResult({ tree: data.results ?? null });
+        onResult({ tree: data.results });
     }
 
     return (
