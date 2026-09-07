@@ -1,13 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { getChildren, deleteItem, createItem } from "../api/items";
-import { ForceExpandedContext } from "../context/forceExpandedContext";
+import { ExpandContext } from "../context/expandContext";
 
 const childrenCache = new Map();
 
 export function useNodeChildren(node, { defaultExpanded = false } = {}) {
-    const forceExpandedIds = useContext(ForceExpandedContext);
-    const isForced = forceExpandedIds?.has(node.id) ?? false;
-    const isSearching = forceExpandedIds !== undefined;
+    const expandIds = useContext(ExpandContext);
 
     const [children, setChildrenState] = useState(() => {
         if (node.children !== undefined) return node.children;
@@ -15,8 +13,6 @@ export function useNodeChildren(node, { defaultExpanded = false } = {}) {
     });
     const [manualExpanded, setManualExpanded] = useState(defaultExpanded);
     const [isLoading, setIsLoading] = useState(false);
-
-    const expanded = isSearching ? isForced : manualExpanded;
 
     function setChildren(value) {
         if (value) childrenCache.set(node.id, value);
@@ -35,13 +31,16 @@ export function useNodeChildren(node, { defaultExpanded = false } = {}) {
     }
 
     useEffect(() => {
-        if (isForced && children === null && node.hasChildren) {
-            loadChildren();
+        if (expandIds?.has(node.id)) {
+            setManualExpanded(true);
+            if (children === null && node.hasChildren) {
+                loadChildren();
+            }
         }
-    }, [isForced]);
+    }, [expandIds]);
 
     async function toggle() {
-        if (expanded) {
+        if (manualExpanded) {
             setManualExpanded(false);
             return;
         }
@@ -66,7 +65,7 @@ export function useNodeChildren(node, { defaultExpanded = false } = {}) {
 
     return {
         children: children ?? [],
-        expanded,
+        expanded: manualExpanded,
         isLoading,
         toggle,
         addChild,
