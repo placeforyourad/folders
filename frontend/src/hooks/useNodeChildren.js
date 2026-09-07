@@ -1,24 +1,22 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getChildren, deleteItem, createItem } from "../api/items";
+import { ForceExpandedContext } from "../context/forceExpandedContext";
 
 const childrenCache = new Map();
 
-export function useNodeChildren(node, { initialExpanded = false } = {}) {
+export function useNodeChildren(node, { defaultExpanded = false } = {}) {
+    const forceExpandedIds = useContext(ForceExpandedContext);
+    const isForced = forceExpandedIds?.has(node.id) ?? false;
+    const isSearching = forceExpandedIds !== undefined;
+
     const [children, setChildrenState] = useState(() => {
         if (node.children !== undefined) return node.children;
         return childrenCache.get(node.id) ?? null;
     });
-    const [expanded, setExpanded] = useState(initialExpanded);
+    const [manualExpanded, setManualExpanded] = useState(defaultExpanded);
     const [isLoading, setIsLoading] = useState(false);
 
-    useEffect(() => {
-        if (initialExpanded && children === null && node.hasChildren) {
-            setIsLoading(true);
-            getChildren(node.id)
-                .then(setChildren)
-                .finally(() => setIsLoading(false));
-        }
-    }, []);
+    const expanded = isSearching ? isForced : manualExpanded;
 
     function setChildren(value) {
         if (value) childrenCache.set(node.id, value);
@@ -26,23 +24,33 @@ export function useNodeChildren(node, { initialExpanded = false } = {}) {
         setChildrenState(value);
     }
 
+    async function loadChildren() {
+        setIsLoading(true);
+        try {
+            const data = await getChildren(node.id);
+            setChildren(data);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (isForced && children === null && node.hasChildren) {
+            loadChildren();
+        }
+    }, [isForced]);
+
     async function toggle() {
         if (expanded) {
-            setExpanded(false);
+            setManualExpanded(false);
             return;
         }
 
         if (children === null && node.hasChildren) {
-            setIsLoading(true);
-            try {
-                const data = await getChildren(node.id);
-                setChildren(data);
-            } finally {
-                setIsLoading(false);
-            }
+            await loadChildren();
         }
 
-        setExpanded(true);
+        setManualExpanded(true);
     }
 
     async function addChild({ name, type }) {

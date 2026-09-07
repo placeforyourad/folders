@@ -26,8 +26,12 @@ class ItemsRepository {
 
         if (!root) return null;
 
-        const children = await prisma.item.findMany({where: { parentId: root.id },});
-        const grandchildren = await prisma.item.findMany({where: { parentId: { in: children.map((child) => child.id) } },});
+        const children = await prisma.item.findMany({
+            where: { parentId: root.id },
+        });
+        const grandchildren = await prisma.item.findMany({
+            where: { parentId: { in: children.map((child) => child.id) } },
+        });
 
         const childrenByParent = this.#groupByParent([
             ...children,
@@ -79,9 +83,13 @@ class ItemsRepository {
 
     async #collectAncestors(frontier, byId) {
         while (frontier.length) {
-            const parentIds = frontier
-                .map((item) => item.parentId)
-                .filter((id) => id && !byId.has(id));
+            const parentIds = [];
+
+            for (const item of frontier) {
+                if (item.parentId && !byId.has(item.parentId)) {
+                    parentIds.push(item.parentId);
+                }
+            }
 
             if (!parentIds.length) break;
 
@@ -122,7 +130,11 @@ class ItemsRepository {
             let child = getNode(match);
             if (!root) root = child;
 
-            for (let parent = byId.get(match.parentId); parent; parent = byId.get(parent.parentId)) {
+            for (
+                let parent = byId.get(match.parentId);
+                parent;
+                parent = byId.get(parent.parentId)
+            ) {
                 const parentNode = getNode(parent);
                 if (!parentNode.children.includes(child)) {
                     parentNode.children.push(child);

@@ -1,19 +1,34 @@
 import { useEffect, useState } from "react";
 import TreeNode from "./TreeNode";
-import { getTree } from "../api/items.js";
+import SearchForm from "./SearchForm";
+import { getTree } from "../api/items";
+import { ForceExpandedContext } from "../context/forceExpandedContext";
+import { useSearchHighlights } from "../hooks/useSearchHighlights";
 
 export default function App() {
     const [tree, setTree] = useState(null);
+    const { searchResult, forceExpandedIds, onSearchResult } =
+        useSearchHighlights();
 
     useEffect(() => {
         getTree().then(setTree);
     }, []);
 
-    if (!tree) return <p>Загрузка...</p>;
-
     return (
-        <ul style={{ padding: 20 }}>
-            <TreeNode node={tree} defaultExpanded isRoot />
-        </ul>
+        <div className="app">
+            <SearchForm onResult={onSearchResult} />
+
+            {searchResult && !searchResult.tree ? (
+                <p className="search-empty">Ничего не найдено</p>
+            ) : (
+                <ForceExpandedContext.Provider value={forceExpandedIds}>
+                    {tree && (
+                        <ul className="tree-root">
+                            <TreeNode node={tree} isRoot defaultExpanded />
+                        </ul>
+                    )}
+                </ForceExpandedContext.Provider>
+            )}
+        </div>
     );
 }

@@ -12,8 +12,7 @@ export default function TreeNode({
 }) {
     const [adding, setAdding] = useState(false);
     const { children, expanded, isLoading, toggle, addChild, removeChild } =
-        useNodeChildren(node, { initialExpanded: defaultExpanded });
-
+        useNodeChildren(node, { defaultExpanded });
     const isFolder = node.type === "folder";
 
     async function handleDelete() {

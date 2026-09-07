@@ -116,31 +116,43 @@ GET /api/tree/search?query={строка}
 
 Результат — пути от `root` до каждого найденного элемента, без соседних веток. Если один найденный элемент является предком другого найденного элемента, в результат попадает только путь до более глубокого совпадения — путь до предка-совпадения в него уже включён.
 
-Пример: при поиске `file1`:
+Пример: при поиске `файл`:
 
 ```json
 {
-    "results": [
-        {
-            "id": "root-id",
-            "name": "root",
-            "type": "folder",
-            "children": [
-                {
-                    "id": "folder-id",
-                    "name": "folder1",
-                    "type": "folder",
-                    "children": [
-                        {
-                            "id": "file-id",
-                            "name": "file1.txt",
-                            "type": "file"
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
+    "results": {
+        "id": "15431444-3eb1-41de-87c5-d763b81840a1",
+        "name": "root",
+        "type": "folder",
+        "children": [
+            {
+                "id": "3121bb49-af99-4657-9bcf-2408965da86d",
+                "name": "папка1",
+                "type": "folder",
+                "children": [
+                    {
+                        "id": "f6e89df9-fd70-4eda-aefe-05c2ded08a1a",
+                        "name": "файл",
+                        "type": "folder",
+                        "children": [
+                            {
+                                "id": "68f39e22-a5bd-443d-ab8e-4f61cd161344",
+                                "name": "новый файл",
+                                "type": "folder",
+                                "children": []
+                            }
+                        ]
+                    },
+                    {
+                        "id": "ee868759-f40a-4367-9ebf-108f63955883",
+                        "name": "файл",
+                        "type": "file",
+                        "children": []
+                    }
+                ]
+            }
+        ]
+    }
 }
 ```
 
