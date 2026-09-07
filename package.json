@@ -18,9 +18,12 @@
     },
     "scripts": {
         "studio": "npx prisma studio",
-        "dev": "docker compose up --build -d"
+        "docker": "docker compose up --build -d",
+        "frontend": "npm run frontend --prefix frontend",
+        "start": "concurrently \"npm run docker\" \"npm run frontend\""
     },
     "devDependencies": {
+        "concurrently": "^10.0.5",
         "prettier": "3.9.6"
     }
 }

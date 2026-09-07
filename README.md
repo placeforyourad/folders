@@ -13,7 +13,7 @@ cd folders
 cp .env.example .env
 
 # 3. Запустить всё
-npm run dev
+npm run docker
 ```
 
 > Посмотреть на базу через Prisma Studio выполните `npm run studio`.
@@ -218,6 +218,6 @@ DELETE /api/tree/item/{id}
 ## Скрипты npm
 
 | Команда          | Действие                         |
-| ---------------- | -------------------------------- |
-| `npm run dev`    | Собрать и запустить всё в Docker |
+|------------------| -------------------------------- |
+| `npm run docker` | Собрать и запустить всё в Docker |
 | `npm run studio` | Открыть Prisma Studio            |
