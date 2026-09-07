@@ -1,10 +1,6 @@
 import prisma from "../prisma.js";
 
 class ItemsRepository {
-    async findAll() {
-        return prisma.item.findMany();
-    }
-
     async findById(id) {
         return prisma.item.findUnique({ where: { id } });
     }
@@ -24,12 +20,19 @@ class ItemsRepository {
     }
 
     async getTree() {
-        const { items, childrenByParent } = await this.#loadIndexed();
-        const root = items.find((item) => item.parentId === null);
+        const root = await prisma.item.findFirst({
+            where: { parentId: null },
+        });
 
-        if (!root) {
-            return null;
-        }
+        if (!root) return null;
+
+        const children = await prisma.item.findMany({where: { parentId: root.id },});
+        const grandchildren = await prisma.item.findMany({where: { parentId: { in: children.map((child) => child.id) } },});
+
+        const childrenByParent = this.#groupByParent([
+            ...children,
+            ...grandchildren,
+        ]);
 
         return this.#buildNodeShallow(root, childrenByParent);
     }
@@ -61,24 +64,24 @@ class ItemsRepository {
 
     async search(query) {
         const matches = await prisma.item.findMany({
-            where: { name: { contains: query, mode: "insensitive" } },
+            where: {
+                name: { contains: query, mode: "insensitive" },
+            },
         });
 
-        if (matches.length === 0) return [];
+        if (!matches.length) return null;
 
-        const matchIds = new Set(matches.map((m) => m.id));
-        const byId = new Map(matches.map((m) => [m.id, m]));
+        const byId = new Map(matches.map((item) => [item.id, item]));
+        await this.#collectAncestors(matches, byId);
 
-        let frontier = matches;
+        return this.#buildSearchTree(matches, byId);
+    }
 
+    async #collectAncestors(frontier, byId) {
         while (frontier.length) {
-            const parentIds = [
-                ...new Set(
-                    frontier
-                        .map((i) => i.parentId)
-                        .filter((id) => id && !byId.has(id)),
-                ),
-            ];
+            const parentIds = frontier
+                .map((item) => item.parentId)
+                .filter((id) => id && !byId.has(id));
 
             if (!parentIds.length) break;
 
@@ -86,51 +89,9 @@ class ItemsRepository {
                 where: { id: { in: parentIds } },
             });
 
-            for (const p of parents) byId.set(p.id, p);
-
+            parents.forEach((parent) => byId.set(parent.id, parent));
             frontier = parents;
         }
-
-        const results = [];
-
-        for (const match of matches) {
-            const path = this.#pathToRoot(match, byId);
-
-            if (path.some((a) => a.id !== match.id && matchIds.has(a.id)))
-                continue;
-
-            results.push(this.#buildPathFromAncestors(path));
-        }
-
-        return results;
-    }
-
-    #pathToRoot(item, byId) {
-        const path = [];
-
-        for (let node = item; node; node = byId.get(node.parentId) ?? null) {
-            path.unshift(node);
-        }
-
-        return path;
-    }
-
-    #buildPathFromAncestors(path) {
-        const childrenByParent = new Map();
-
-        for (let i = 1; i < path.length; i++) {
-            childrenByParent.set(path[i].id, [path[i - 1]]);
-        }
-
-        return this.#buildNode(path[path.length - 1], childrenByParent);
-    }
-
-    async #loadIndexed() {
-        const items = await this.findAll();
-        return {
-            items,
-            childrenByParent: this.#groupByParent(items),
-        };
     }
 
     #groupByParent(items) {
@@ -145,17 +106,33 @@ class ItemsRepository {
         return childrenByParent;
     }
 
-    #buildNode(item, childrenByParent) {
-        const node = { id: item.id, name: item.name, type: item.type };
+    #buildSearchTree(matches, byId) {
+        const nodes = new Map();
+        const getNode = (item) => {
+            if (!nodes.has(item.id)) {
+                const { id, name, type } = item;
+                nodes.set(id, { id, name, type, children: [] });
+            }
+            return nodes.get(item.id);
+        };
 
-        if (item.type === "folder") {
-            const children = childrenByParent.get(item.id) ?? [];
-            node.children = children.map((child) =>
-                this.#buildNode(child, childrenByParent),
-            );
+        let root;
+
+        for (const match of matches) {
+            let child = getNode(match);
+            if (!root) root = child;
+
+            for (let parent = byId.get(match.parentId); parent; parent = byId.get(parent.parentId)) {
+                const parentNode = getNode(parent);
+                if (!parentNode.children.includes(child)) {
+                    parentNode.children.push(child);
+                }
+                child = parentNode;
+                root = parentNode;
+            }
         }
 
-        return node;
+        return root;
     }
 
     #buildNodeShallow(item, childrenByParent) {

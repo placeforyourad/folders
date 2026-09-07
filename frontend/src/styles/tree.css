@@ -38,10 +38,6 @@
     cursor: pointer;
 }
 
-.tree-node-label.is-file {
-    cursor: default;
-}
-
 .tree-node-icon {
     font-size: 16px;
 }

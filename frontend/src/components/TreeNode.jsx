@@ -4,7 +4,12 @@ import TreeNodeActions from "./TreeNodeActions";
 import TreeNodeAddForm from "./TreeNodeAddForm";
 import "../styles/tree.css";
 
-export default function TreeNode({ node, isRoot = false, defaultExpanded = false, onDeleted }) {
+export default function TreeNode({
+    node,
+    isRoot = false,
+    defaultExpanded = false,
+    onDeleted,
+}) {
     const [adding, setAdding] = useState(false);
     const { children, expanded, isLoading, toggle, addChild, removeChild } =
         useNodeChildren(node, { initialExpanded: defaultExpanded });
@@ -17,8 +22,12 @@ export default function TreeNode({ node, isRoot = false, defaultExpanded = false
     }
 
     async function handleCreate(input) {
-        await addChild(input);
-        setAdding(false);
+        try {
+            await addChild(input);
+            setAdding(false);
+        } catch (e) {
+            alert(e.message);
+        }
     }
 
     return (

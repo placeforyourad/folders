@@ -9,7 +9,7 @@ export async function getChildren(id) {
 }
 
 export async function searchItems(query) {
-    const res = await fetch(`/api/tree/search?q=${encodeURIComponent(query)}`);
+    const res = await fetch(`/api/tree/search?query=${encodeURIComponent(query)}`);
     return res.json();
 }
 
@@ -19,7 +19,10 @@ export async function createItem({ name, type, parentId }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, type, parentId }),
     });
-    return res.json();
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || "Ошибка создания");
+    return data;
 }
 
 export async function deleteItem(id) {
