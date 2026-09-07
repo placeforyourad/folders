@@ -1,43 +1,66 @@
 import { useState } from "react";
-import { getChildren } from "../api/items";
+import { useNodeChildren } from "../hooks/useNodeChildren";
+import TreeNodeActions from "./TreeNodeActions";
+import TreeNodeAddForm from "./TreeNodeAddForm";
+import "../styles/tree.css";
 
-export default function TreeNode({ node, defaultExpanded = false }) {
-    const [expanded, setExpanded] = useState(defaultExpanded);
-    const [fetchedChildren, setFetchedChildren] = useState(null);
+export default function TreeNode({ node, isRoot = false, defaultExpanded = false, onDeleted }) {
+    const [adding, setAdding] = useState(false);
+    const { children, expanded, isLoading, toggle, addChild, removeChild } =
+        useNodeChildren(node, { initialExpanded: defaultExpanded });
 
     const isFolder = node.type === "folder";
-    const children = node.children ?? fetchedChildren ?? [];
 
-    async function handleToggle() {
-        if (expanded) {
-            setExpanded(false);
-            return;
-        }
+    async function handleDelete() {
+        if (!confirm(`Удалить «${node.name}»?`)) return;
+        onDeleted ? await onDeleted(node.id) : await removeChild(node.id);
+    }
 
-        const alreadyHaveData = node.children !== undefined || fetchedChildren !== null;
-
-        if (!alreadyHaveData && node.hasChildren) {
-            const data = await getChildren(node.id);
-            setFetchedChildren(data);
-        }
-
-        setExpanded(true);
+    async function handleCreate(input) {
+        await addChild(input);
+        setAdding(false);
     }
 
     return (
-        <li>
-            <span
-                onClick={isFolder ? handleToggle : undefined}
-                style={{ cursor: isFolder ? "pointer" : "default" }}
-            >
-                {isFolder ? (expanded ? "📂 " : "📁 ") : "📄 "}
-                {node.name}
-            </span>
+        <li className="tree-node">
+            <div className="tree-node-row">
+                <button
+                    type="button"
+                    className={`tree-node-label ${isFolder ? "is-folder" : "is-file"}`}
+                    onClick={isFolder ? toggle : undefined}
+                    disabled={!isFolder}
+                >
+                    <span className="tree-node-icon">
+                        {isFolder ? (expanded ? "📂" : "📁") : "📄"}
+                    </span>
+                    <span className="tree-node-name">{node.name}</span>
+                    {isLoading && <span className="tree-node-loading">…</span>}
+                </button>
+
+                <TreeNodeActions
+                    isFolder={isFolder}
+                    isRoot={isRoot}
+                    adding={adding}
+                    onToggleAdd={() => setAdding((prev) => !prev)}
+                    onDelete={handleDelete}
+                />
+            </div>
+
+            {adding && (
+                <TreeNodeAddForm
+                    onSubmit={handleCreate}
+                    onCancel={() => setAdding(false)}
+                />
+            )}
 
             {expanded && children.length > 0 && (
-                <ul>
+                <ul className="tree-children">
                     {children.map((child) => (
-                        <TreeNode key={child.id} node={child} />
+                        <TreeNode
+                            key={child.id}
+                            node={child}
+                            onDeleted={removeChild}
+                        />
                     ))}
                 </ul>
             )}

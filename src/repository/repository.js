@@ -159,7 +159,12 @@ class ItemsRepository {
     }
 
     #buildNodeShallow(item, childrenByParent) {
-        const node = { id: item.id, name: item.name, type: item.type };
+        const node = {
+            id: item.id,
+            name: item.name,
+            type: item.type,
+            parentId: item.parentId,
+        };
 
         if (item.type === "folder") {
             const children = childrenByParent.get(item.id) ?? [];
@@ -167,8 +172,7 @@ class ItemsRepository {
                 id: child.id,
                 name: child.name,
                 type: child.type,
-                hasChildren:
-                    (childrenByParent.get(child.id) ?? []).length > 0,
+                hasChildren: (childrenByParent.get(child.id) ?? []).length > 0,
             }));
         }
 

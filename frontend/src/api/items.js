@@ -1,5 +1,5 @@
 export async function getTree() {
-    const res = await fetch('/api/tree');
+    const res = await fetch("/api/tree");
     return res.json();
 }
 

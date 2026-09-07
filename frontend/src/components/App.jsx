@@ -12,8 +12,8 @@ export default function App() {
     if (!tree) return <p>Загрузка...</p>;
 
     return (
-        <ul>
-            <TreeNode node={tree} defaultExpanded />
+        <ul style={{ padding: 20 }}>
+            <TreeNode node={tree} defaultExpanded isRoot />
         </ul>
     );
 }

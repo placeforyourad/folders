@@ -26,11 +26,19 @@ const validateGetItem = validate("params", [
 const validateCreateItem = validate("body", [
     ["name", isNonEmptyString, "Поле name обязательно и не может быть пустым"],
     ["type", isValidType, "Поле type должно быть 'folder' или 'file'"],
-    ["parentId", isUuid, "Поле parentId обязательно и должно быть валидным UUID",],
+    [
+        "parentId",
+        isUuid,
+        "Поле parentId обязательно и должно быть валидным UUID",
+    ],
 ]);
 
 const validateSearchItem = validate("query", [
-    ["query", isNonEmptyString, "Параметр query обязателен и не может быть пустым",],
+    [
+        "query",
+        isNonEmptyString,
+        "Параметр query обязателен и не может быть пустым",
+    ],
 ]);
 
 export { validateGetItem, validateCreateItem, validateSearchItem };

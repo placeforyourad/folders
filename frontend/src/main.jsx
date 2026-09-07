@@ -5,5 +5,5 @@ import App from "./components/App.jsx";
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
         <App />
-    </React.StrictMode>
+    </React.StrictMode>,
 );

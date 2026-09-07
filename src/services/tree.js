@@ -29,7 +29,9 @@ async function createItem({ name, type, parentId }) {
     }
 
     const children = await itemsRepository.findChildren(parentId);
-    const duplicate = children.some((c) => c.name === name.trim());
+    const duplicate = children.some(
+        (c) => c.name === name.trim() && c.type === type,
+    );
 
     if (duplicate) {
         throw new ValidationError(
