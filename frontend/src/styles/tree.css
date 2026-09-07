@@ -68,12 +68,12 @@
 }
 
 .tree-action-btn:hover {
-    background-color: #e5e7eb;
+    background-color: #ffffff;
     color: #111827;
 }
 
 .tree-action-danger:hover {
-    background-color: #fee2e2;
+    background-color: #ffbebe;
     color: #dc2626;
 }
 
