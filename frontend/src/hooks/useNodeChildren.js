@@ -1,12 +1,12 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getChildren, deleteItem, createItem } from "../api/items";
-import { ExpandContext } from "../context/expandContext";
 
 const childrenCache = new Map();
 
-export function useNodeChildren(node, { defaultExpanded = false } = {}) {
-    const expandIds = useContext(ExpandContext);
-
+export function useNodeChildren(
+    node,
+    { defaultExpanded = false, expandIds } = {},
+) {
     const [children, setChildrenState] = useState(() => {
         if (node.children !== undefined) return node.children;
         return childrenCache.get(node.id) ?? null;

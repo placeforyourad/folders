@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import TreeNode from "./TreeNode";
 import SearchForm from "./SearchForm";
 import { getTree } from "../api/items";
-import { ExpandContext } from "../context/expandContext";
 import { useSearch } from "../hooks/useSearch";
 
 export default function App() {
@@ -20,13 +19,11 @@ export default function App() {
             {isEmpty ? (
                 <p className="search-empty">Ничего не найдено</p>
             ) : (
-                <ExpandContext.Provider value={expandIds}>
-                    {tree && (
-                        <ul className="tree-root">
-                            <TreeNode node={tree} isRoot defaultExpanded />
-                        </ul>
-                    )}
-                </ExpandContext.Provider>
+                tree && (
+                    <ul className="tree-root">
+                        <TreeNode node={tree} isRoot defaultExpanded expandIds={expandIds} />
+                    </ul>
+                )
             )}
         </div>
     );
