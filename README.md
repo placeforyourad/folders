@@ -1,6 +1,9 @@
 # Folders - иерархическое файловое хранилище
 
-REST API для управления иерархическим деревом папок и файлов. Построено на **Node.js + Express + Prisma + PostgreSQL**, разворачивается через **Docker Compose**.
+REST API + SPA-интерфейс для управления иерархическим деревом папок и файлов.
+
+- **Бэкенд:** Node.js, Express, Prisma, PostgreSQL (Docker)
+- **Фронтенд:** React 19, Vite
 
 ## Старт
 
@@ -223,6 +226,36 @@ DELETE /api/tree/item/{id}
 {
     "message": "Элемент удалён"
 }
+```
+
+---
+
+## Архитектура фронтенда
+### Компоненты
+
+| Компонент | Назначение |
+| --- | --- |
+| `App` | Загружает дерево через `GET /api/tree`, рендерит `SearchForm` и `TreeNode` от корня |
+| `SearchForm` | Поиск по имени, вызывает `GET /api/tree/search`, передаёт результат в `useSearch` |
+| `TreeNode` | Рекурсивно рендерит один узел. Для папок — кнопка раскрытия, для всех — действия (добавить/удалить) |
+| `TreeNodeActions` | Кнопки "+" и "🗑" |
+| `TreeNodeAddForm` | Инпут + селект (папка/файл), вызывает `POST /api/tree/item` |
+
+### Хуки
+
+| Хук | Назначение |
+| --- | --- |
+| `useNodeChildren` | Ленивая загрузка детей узла (`GET /api/tree/:id/children`), кэширование в `Map`, добавление и удаление дочерних элементов без рефетча дерева |
+| `useSearch` | Собирает ID найденных элементов в `Set`, передаёт в `expandIds` — дерево автоматически раскрывается до совпадений |
+
+### Потоки данных
+
+```
+Загрузка:   App → GET /api/tree → setTree → TreeNode рекурсивно
+Раскрытие:  клик → useNodeChildren.toggle() → GET /api/tree/:id/children → кэш + стейт
+Создание:   форма → POST /api/tree/item → addChild() → локальный стейт
+Удаление:   кнопка → DELETE /api/tree/item/:id → removeChild() → локальный стейт
+Поиск:      SearchForm → GET /api/tree/search → useSearch → expandIds → рекурсивное раскрытие
 ```
 
 ---

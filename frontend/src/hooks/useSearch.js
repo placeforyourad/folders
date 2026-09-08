@@ -2,9 +2,12 @@ import { useState } from "react";
 
 function collectIds(node, ids = new Set()) {
     if (!node) return ids;
-    ids.add(node.id);
-    for (const child of node.children ?? []) {
-        collectIds(child, ids);
+    const children = node.children ?? [];
+    if (children.length > 0) {
+        ids.add(node.id);
+        for (const child of children) {
+            collectIds(child, ids);
+        }
     }
     return ids;
 }
