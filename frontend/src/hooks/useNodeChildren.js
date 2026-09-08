@@ -31,11 +31,15 @@ export function useNodeChildren(
     }
 
     useEffect(() => {
-        if (expandIds?.has(node.id)) {
+        if (!expandIds) return;
+
+        if (expandIds.has(node.id)) {
             setManualExpanded(true);
             if (children === null && node.hasChildren) {
                 loadChildren();
             }
+        } else {
+            setManualExpanded(false);
         }
     }, [expandIds]);
 
