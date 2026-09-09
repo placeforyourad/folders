@@ -28,9 +28,6 @@ function writeDirtyNode(nodeId) {
     localStorage.setItem(DIRTY_KEY, JSON.stringify(merged));
 }
 
-window.addEventListener("storage", (event) => {
-    if (event.key !== DIRTY_KEY) return;
-    consumeDirtyNodes();
-});
+window.addEventListener("storage", consumeDirtyNodes);
 
 export { registerRefetch, writeDirtyNode };
