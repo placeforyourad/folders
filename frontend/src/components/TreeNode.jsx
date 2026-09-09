@@ -12,7 +12,7 @@ export default function TreeNode({
     expandIds,
 }) {
     const [adding, setAdding] = useState(false);
-    const { children, expanded, isLoading, toggle, addChild, removeChild } =
+    const { children, expanded, toggle, addChild, removeChild } =
         useNodeChildren(node, { defaultExpanded, expandIds });
     const isFolder = node.type === "folder";
 
@@ -43,7 +43,6 @@ export default function TreeNode({
                         {isFolder ? (expanded ? "📂" : "📁") : "📄"}
                     </span>
                     <span className="tree-node-name">{node.name}</span>
-                    {isLoading && <span className="tree-node-loading">…</span>}
                 </button>
 
                 <TreeNodeActions

@@ -12,7 +12,6 @@ export function useNodeChildren(
         return childrenCache.get(node.id) ?? null;
     });
     const [manualExpanded, setManualExpanded] = useState(defaultExpanded);
-    const [isLoading, setIsLoading] = useState(false);
 
     function setChildren(value) {
         if (value) childrenCache.set(node.id, value);
@@ -21,13 +20,8 @@ export function useNodeChildren(
     }
 
     async function loadChildren() {
-        setIsLoading(true);
-        try {
-            const data = await getChildren(node.id);
-            setChildren(data);
-        } finally {
-            setIsLoading(false);
-        }
+        const data = await getChildren(node.id);
+        setChildren(data);
     }
 
     useEffect(() => {
@@ -70,7 +64,6 @@ export function useNodeChildren(
     return {
         children: children ?? [],
         expanded: manualExpanded,
-        isLoading,
         toggle,
         addChild,
         removeChild,
