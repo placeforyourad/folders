@@ -1,10 +1,4 @@
-export default function TreeNodeActions({
-    isFolder,
-    isRoot,
-    adding,
-    onToggleAdd,
-    onDelete,
-}) {
+function TreeNodeActions({ isFolder, isRoot, adding, onToggleAdd, onDelete }) {
     return (
         <div className="tree-node-actions">
             {isFolder && (
@@ -30,3 +24,5 @@ export default function TreeNodeActions({
         </div>
     );
 }
+
+export { TreeNodeActions as default };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function TreeNodeAddForm({ onSubmit, onCancel }) {
+function TreeNodeAddForm({ onSubmit, onCancel }) {
     const [newName, setNewName] = useState("");
     const [newType, setNewType] = useState("folder");
 
@@ -50,3 +50,5 @@ export default function TreeNodeAddForm({ onSubmit, onCancel }) {
         </form>
     );
 }
+
+export { TreeNodeAddForm as default };

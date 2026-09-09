@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { searchItems } from "../api/items";
+import * as api from "../api/items";
 
-export default function SearchForm({ onResult }) {
+function SearchForm({ onResult }) {
     const [query, setQuery] = useState("");
 
     async function handleSubmit(e) {
@@ -13,7 +13,7 @@ export default function SearchForm({ onResult }) {
             return;
         }
 
-        const data = await searchItems(trimmed);
+        const data = await api.searchItems(trimmed);
         onResult({ tree: data.results });
     }
 
@@ -32,3 +32,5 @@ export default function SearchForm({ onResult }) {
         </form>
     );
 }
+
+export { SearchForm as default };

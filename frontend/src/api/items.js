@@ -5,19 +5,19 @@ async function request(url, options) {
     return data;
 }
 
-export function getTree() {
+function getTree() {
     return request("/api/tree");
 }
 
-export function getChildren(id) {
+function getChildren(id) {
     return request(`/api/tree/${id}/children`);
 }
 
-export function searchItems(query) {
+function searchItems(query) {
     return request(`/api/tree/search?query=${encodeURIComponent(query)}`);
 }
 
-export function createItem({ name, type, parentId }) {
+function createItem({ name, type, parentId }) {
     return request("/api/tree/item", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -25,6 +25,8 @@ export function createItem({ name, type, parentId }) {
     });
 }
 
-export function deleteItem(id) {
+function deleteItem(id) {
     return request(`/api/tree/item/${id}`, { method: "DELETE" });
 }
+
+export { getTree, getChildren, searchItems, createItem, deleteItem };

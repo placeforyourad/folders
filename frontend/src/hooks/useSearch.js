@@ -12,7 +12,7 @@ function collectIds(node, ids = new Set()) {
     return ids;
 }
 
-export function useSearch() {
+function useSearch() {
     const [expandIds, setExpandIds] = useState(undefined);
     const [isEmpty, setIsEmpty] = useState(false);
 
@@ -29,3 +29,5 @@ export function useSearch() {
 
     return { expandIds, isEmpty, onSearchResult };
 }
+
+export { useSearch };

@@ -4,7 +4,7 @@ import TreeNodeActions from "./TreeNodeActions";
 import TreeNodeAddForm from "./TreeNodeAddForm";
 import "../styles/tree.css";
 
-export default function TreeNode({
+function TreeNode({
     node,
     isRoot = false,
     defaultExpanded = false,
@@ -76,3 +76,5 @@ export default function TreeNode({
         </li>
     );
 }
+
+export { TreeNode as default };

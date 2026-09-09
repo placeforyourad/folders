@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-import { getChildren, deleteItem, createItem } from "../api/items";
+import * as api from "../api/items";
+import * as sync from "./useStorageSync";
 
 const childrenCache = new Map();
 
-export function useNodeChildren(
-    node,
-    { defaultExpanded = false, expandIds } = {},
-) {
+function useNodeChildren(node, { defaultExpanded = false, expandIds } = {}) {
     const [children, setChildrenState] = useState(() => {
         if (node.children !== undefined) return node.children;
         return childrenCache.get(node.id) ?? null;
@@ -20,7 +18,7 @@ export function useNodeChildren(
     }
 
     async function loadChildren() {
-        const data = await getChildren(node.id);
+        const data = await api.getChildren(node.id);
         setChildren(data);
     }
 
@@ -29,7 +27,7 @@ export function useNodeChildren(
 
         if (expandIds.has(node.id)) {
             setManualExpanded(true);
-            if (children === null && node.hasChildren) {
+            if (children === null) {
                 loadChildren();
             }
         } else {
@@ -37,13 +35,23 @@ export function useNodeChildren(
         }
     }, [expandIds]);
 
+    useEffect(() => {
+        sync.registerRefetch(node.id, async () => {
+            const loaded =
+                childrenCache.has(node.id) || node.children !== undefined;
+            if (!loaded) return;
+            const data = await api.getChildren(node.id);
+            setChildren(data);
+        });
+    }, [node.id]);
+
     async function toggle() {
         if (manualExpanded) {
             setManualExpanded(false);
             return;
         }
 
-        if (children === null && node.hasChildren) {
+        if (children === null) {
             await loadChildren();
         }
 
@@ -51,14 +59,18 @@ export function useNodeChildren(
     }
 
     async function addChild({ name, type }) {
-        const created = await createItem({ name, type, parentId: node.id });
-        setChildren([...(children ?? []), created]);
+        const created = await api.createItem({ name, type, parentId: node.id });
+        sync.writeDirtyNodes([node.id]);
+        if (children !== null) {
+            setChildren([...children, created]);
+        }
         return created;
     }
 
     async function removeChild(id) {
-        await deleteItem(id);
-        setChildren((children ?? []).filter((child) => child.id !== id));
+        await api.deleteItem(id);
+        sync.writeDirtyNodes([node.id]);
+        setChildren(children.filter((child) => child.id !== id));
     }
 
     return {
@@ -69,3 +81,5 @@ export function useNodeChildren(
         removeChild,
     };
 }
+
+export { useNodeChildren };

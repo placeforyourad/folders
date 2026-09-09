@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import TreeNode from "./TreeNode";
 import SearchForm from "./SearchForm";
-import { getTree } from "../api/items";
+import * as api from "../api/items";
 import { useSearch } from "../hooks/useSearch";
+import { useStorageSync } from "../hooks/useStorageSync";
 
-export default function App() {
+function App() {
     const [tree, setTree] = useState(null);
     const { expandIds, isEmpty, onSearchResult } = useSearch();
 
+    useStorageSync();
+
     useEffect(() => {
-        getTree().then(setTree);
+        api.getTree().then(setTree);
     }, []);
 
     return (
@@ -21,10 +24,17 @@ export default function App() {
             ) : (
                 tree && (
                     <ul className="tree-root">
-                        <TreeNode node={tree} isRoot defaultExpanded expandIds={expandIds} />
+                        <TreeNode
+                            node={tree}
+                            isRoot
+                            defaultExpanded
+                            expandIds={expandIds}
+                        />
                     </ul>
                 )
             )}
         </div>
     );
 }
+
+export { App as default };
