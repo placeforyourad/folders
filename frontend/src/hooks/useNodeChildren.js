@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import * as api from "../api/items";
-import * as sync from "./useStorageSync";
+import * as sync from "../utils/treeSync";
 
 const childrenCache = new Map();
 

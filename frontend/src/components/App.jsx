@@ -3,13 +3,10 @@ import TreeNode from "./TreeNode";
 import SearchForm from "./SearchForm";
 import * as api from "../api/items";
 import { useSearch } from "../hooks/useSearch";
-import { useStorageSync } from "../hooks/useStorageSync";
 
 function App() {
     const [tree, setTree] = useState(null);
     const { expandIds, isEmpty, onSearchResult } = useSearch();
-
-    useStorageSync();
 
     useEffect(() => {
         api.getTree().then(setTree);

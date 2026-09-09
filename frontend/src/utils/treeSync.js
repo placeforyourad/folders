@@ -1,18 +1,8 @@
-import { useEffect } from "react";
-
 const DIRTY_KEY = "dirtyNodes";
 const refetchRegistry = new Map();
 
 function readDirtyNodes() {
-    try {
-        return JSON.parse(localStorage.getItem(DIRTY_KEY)) ?? [];
-    } catch {
-        return [];
-    }
-}
-
-function clearDirtyNodes() {
-    localStorage.removeItem(DIRTY_KEY);
+    return JSON.parse(localStorage.getItem(DIRTY_KEY)) ?? [];
 }
 
 function notifyRefetch(nodeIds) {
@@ -25,7 +15,7 @@ function notifyRefetch(nodeIds) {
 function consumeDirtyNodes() {
     const dirty = readDirtyNodes();
     if (dirty.length === 0) return;
-    clearDirtyNodes();
+    localStorage.removeItem(DIRTY_KEY);
     notifyRefetch(dirty);
 }
 
@@ -38,16 +28,9 @@ function writeDirtyNodes(nodeIds) {
     localStorage.setItem(DIRTY_KEY, JSON.stringify(merged));
 }
 
-function useStorageSync() {
-    useEffect(() => {
-        function handleStorage(event) {
-            if (event.key !== DIRTY_KEY) return;
-            consumeDirtyNodes();
-        }
+window.addEventListener("storage", (event) => {
+    if (event.key !== DIRTY_KEY) return;
+    consumeDirtyNodes();
+});
 
-        window.addEventListener("storage", handleStorage);
-        return () => window.removeEventListener("storage", handleStorage);
-    }, []);
-}
-
-export { registerRefetch, writeDirtyNodes, useStorageSync };
+export { registerRefetch, writeDirtyNodes };
