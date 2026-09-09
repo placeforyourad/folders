@@ -60,7 +60,7 @@ function useNodeChildren(node, { defaultExpanded = false, expandIds } = {}) {
 
     async function addChild({ name, type }) {
         const created = await api.createItem({ name, type, parentId: node.id });
-        sync.writeDirtyNodes([node.id]);
+        sync.writeDirtyNode(node.id);
         if (children !== null) {
             setChildren([...children, created]);
         }
@@ -69,7 +69,7 @@ function useNodeChildren(node, { defaultExpanded = false, expandIds } = {}) {
 
     async function removeChild(id) {
         await api.deleteItem(id);
-        sync.writeDirtyNodes([node.id]);
+        sync.writeDirtyNode(node.id);
         setChildren(children.filter((child) => child.id !== id));
     }
 

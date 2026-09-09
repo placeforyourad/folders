@@ -23,8 +23,8 @@ function registerRefetch(nodeId, refetch) {
     refetchRegistry.set(nodeId, refetch);
 }
 
-function writeDirtyNodes(nodeIds) {
-    const merged = Array.from(new Set([...readDirtyNodes(), ...nodeIds]));
+function writeDirtyNode(nodeId) {
+    const merged = Array.from(new Set([...readDirtyNodes(), nodeId]));
     localStorage.setItem(DIRTY_KEY, JSON.stringify(merged));
 }
 
@@ -33,4 +33,4 @@ window.addEventListener("storage", (event) => {
     consumeDirtyNodes();
 });
 
-export { registerRefetch, writeDirtyNodes };
+export { registerRefetch, writeDirtyNode };
