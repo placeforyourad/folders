@@ -37,8 +37,8 @@ function useNodeChildren(node, { defaultExpanded = false, expandIds } = {}) {
 
     useEffect(() => {
         sync.registerRefetch(node.id, async () => {
-            const loaded =
-                childrenCache.has(node.id) || node.children !== undefined;
+            const loaded = childrenCache.has(node.id) || node.children !== undefined;
+
             if (!loaded) return;
             const data = await api.getChildren(node.id);
             setChildren(data);

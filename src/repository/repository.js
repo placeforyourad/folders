@@ -101,11 +101,7 @@ class ItemsRepository {
             let child = getNode(match);
             if (!root) root = child;
 
-            for (
-                let parent = byId.get(match.parentId);
-                parent;
-                parent = byId.get(parent.parentId)
-            ) {
+            for (let parent = byId.get(match.parentId); parent; parent = byId.get(parent.parentId)) {
                 const parentNode = getNode(parent);
                 if (!parentNode.children.includes(child)) {
                     parentNode.children.push(child);
