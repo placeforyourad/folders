@@ -16,10 +16,13 @@
     "prisma": {
         "schema": "prisma/schema.prisma"
     },
+    "workspaces": [
+        "frontend"
+    ],
     "scripts": {
         "studio": "npx prisma studio",
         "docker": "docker compose up --build -d",
-        "frontend": "npm run frontend --prefix frontend",
+        "frontend": "npm run frontend --workspace frontend",
         "start": "concurrently \"npm run docker\" \"npm run frontend\""
     },
     "devDependencies": {
