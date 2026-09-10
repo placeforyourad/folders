@@ -101,13 +101,16 @@ class ItemsRepository {
             let child = getNode(match);
             if (!root) root = child;
 
-            for (let parent = byId.get(match.parentId); parent; parent = byId.get(parent.parentId)) {
+            let parent = byId.get(match.parentId);
+
+            while (parent !== undefined) {
                 const parentNode = getNode(parent);
                 if (!parentNode.children.includes(child)) {
                     parentNode.children.push(child);
                 }
                 child = parentNode;
                 root = parentNode;
+                parent = byId.get(parent.parentId);
             }
         }
 

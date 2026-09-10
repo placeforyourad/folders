@@ -1,14 +1,14 @@
-function TreeNodeActions({ isFolder, isRoot, adding, onToggleAdd, onDelete }) {
+function TreeNodeActions({ isFolder, isRoot, isAdding, onToggleAdd, onDelete }) {
     return (
         <div className="tree-node-actions">
             {isFolder && (
                 <button
                     type="button"
                     className="tree-action-btn"
-                    title="Добавить элемент"
+                    title={isAdding ? "Скрыть поле" :"Добавить элемент"}
                     onClick={onToggleAdd}
                 >
-                    {adding ? "✕" : "＋"}
+                    {isAdding ? "✕" : "＋"}
                 </button>
             )}
             {!isRoot && (
