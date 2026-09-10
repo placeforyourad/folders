@@ -15,15 +15,21 @@ cd folders
 # 2. Настроить .env
 cp .env.example .env
 
-# 3. Запустить всё
+# 3. Запустить backend (PostgreSQL + API) в Docker
 npm run docker
+
+# 4. Запустить frontend (Vite) в dev-режиме
+npm run frontend
 ```
+
+Фронтенд разработки проксирует запросы `/api` на `http://localhost:3001`, поэтому оба процесса должны быть запущены. Обе команды можно выполнить одной: `npm run start`.
 
 > Посмотреть на базу через Prisma Studio выполните `npm run studio`.
 
 После запуска:
 
 - API: **http://localhost:3001**
+- Frontend (Vite): **http://localhost:5173**
 
 ## Конфигурация
 
@@ -75,7 +81,7 @@ DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
 GET /api/tree
 ```
 
-Возвращает полное дерево, начиная с `root`.
+Возвращает корень `root` и его прямых детей — **один уровень**. Глубокие уровни фронтенд подгружает лениво через `GET /api/tree/:id/children`, когда пользователь раскрывает папку.
 
 Пример ответа:
 
@@ -84,25 +90,23 @@ GET /api/tree
     "id": "root-id",
     "name": "root",
     "type": "folder",
+    "parentId": null,
     "children": [
         {
             "id": "folder-id",
             "name": "folder1",
-            "type": "folder",
-            "children": [
-                {
-                    "id": "file-id",
-                    "name": "file1.txt",
-                    "type": "file"
-                }
-            ]
+            "type": "folder"
+        },
+        {
+            "id": "file-id",
+            "name": "file1.txt",
+            "type": "file"
         }
     ]
 }
 ```
 
-У файлов поле `children` отсутствует.  
-У пустых папок `children` равно `[]`.
+У дочерних элементов поле `children` отсутствует — их содержимое подгружается отдельно по `id`. У пустых папок (и у корня без детей) `children` равно `[]`.
 
 ---
 
@@ -236,7 +240,7 @@ DELETE /api/tree/item/{id}
 | Компонент | Назначение |
 | --- | --- |
 | `App` | Загружает дерево через `GET /api/tree`, рендерит `SearchForm` и `TreeNode` от корня |
-| `SearchForm` | Поиск по имени, вызывает `GET /api/tree/search`, передаёт результат в `useSearch` |
+| `SearchForm` | Поиск по имени, вызывает `GET /api/tree/search`, результат передаёт через `onResult` в `App` → `useSearch` |
 | `TreeNode` | Рекурсивно рендерит один узел. Для папок — кнопка раскрытия, для всех — действия (добавить/удалить) |
 | `TreeNodeActions` | Кнопки "+" и "🗑" |
 | `TreeNodeAddForm` | Инпут + селект (папка/файл), вызывает `POST /api/tree/item` |
@@ -262,7 +266,9 @@ DELETE /api/tree/item/{id}
 
 ## Скрипты npm
 
-| Команда          | Действие                         |
-| ---------------- | -------------------------------- |
-| `npm run start`  | Собрать и запустить всё в Docker |
-| `npm run studio` | Открыть Prisma Studio            |
+| Команда          | Действие                                         |
+| ---------------- | ------------------------------------------------ |
+| `npm run start`  | Запустить backend в Docker и frontend (Vite) вместе |
+| `npm run docker` | Собрать и запустить backend (PostgreSQL + API) в Docker |
+| `npm run frontend` | Запустить frontend (Vite) в dev-режиме          |
+| `npm run studio` | Открыть Prisma Studio                            |
