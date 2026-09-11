@@ -4,6 +4,14 @@ import * as api from "../api/items";
 function SearchForm({ onResult }) {
     const [query, setQuery] = useState("");
 
+    function handleChange(e) {
+        const value = e.target.value;
+        setQuery(value);
+        if (!value) {
+            onResult(undefined);
+        }
+    }
+
     async function handleSubmit(e) {
         e.preventDefault();
         const trimmed = query.trim();
@@ -23,7 +31,7 @@ function SearchForm({ onResult }) {
                 type="search"
                 placeholder="Поиск по названию…"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={handleChange}
                 className="search-input"
             />
             <button type="submit" className="search-button">

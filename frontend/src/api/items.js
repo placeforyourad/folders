@@ -20,8 +20,9 @@ function getChildren(id) {
     return request(`/api/tree/${id}/children`);
 }
 
-function searchItems(query) {
-    return request(`/api/tree/search?query=${encodeURIComponent(query)}`);
+async function searchItems(query) {
+    const data = await request(`/api/tree/search?query=${encodeURIComponent(query)}`);
+    return { results: Array.isArray(data.results) ? data.results[0] : data.results };
 }
 
 function createItem({ name, type, parentId }) {

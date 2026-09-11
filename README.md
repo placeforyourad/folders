@@ -250,7 +250,7 @@ DELETE /api/tree/item/{id}
 | Хук | Назначение |
 | --- | --- |
 | `useNodeChildren` | Ленивая загрузка детей узла (`GET /api/tree/:id/children`), кэширование в `Map`, добавление и удаление дочерних элементов без рефетча дерева |
-| `useSearch` | Собирает ID найденных элементов в `Set`, передаёт в `expandIds` — дерево автоматически раскрывается до совпадений |
+| `useSearch` | Собирает ID найденных элементов в `Set`|
 
 ### Потоки данных
 
@@ -259,7 +259,7 @@ DELETE /api/tree/item/{id}
 Раскрытие:  клик → useNodeChildren.toggle() → GET /api/tree/:id/children → кэш + стейт
 Создание:   форма → POST /api/tree/item → addChild() → локальный стейт
 Удаление:   кнопка → DELETE /api/tree/item/:id → removeChild() → локальный стейт
-Поиск:      SearchForm → GET /api/tree/search → useSearch → expandIds → рекурсивное раскрытие
+Поиск:      SearchForm → GET /api/tree/search → useSearch → дереве поиска
 ```
 
 ---

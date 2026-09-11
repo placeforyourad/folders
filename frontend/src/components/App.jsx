@@ -1,35 +1,38 @@
-import { useEffect, useState } from "react";
 import TreeNode from "./TreeNode";
 import SearchForm from "./SearchForm";
-import * as api from "../api/items";
 import { useSearch } from "../hooks/useSearch";
+import { useTree } from "../hooks/useTree";
+import { invalidateCache } from "../hooks/useNodeChildren";
 
 function App() {
-    const [tree, setTree] = useState(null);
-    const { expandIds, isEmpty, onSearchResult } = useSearch();
+    const { tree, load, addChild, removeChild } = useTree();
+    const { results, isEmpty, onSearchResult } = useSearch();
 
-    useEffect(() => {
-        api.getTree().then(setTree);
-    }, []);
+    function handleSearchResult(result) {
+        if (results) invalidateCache(results);
+        onSearchResult(result);
+        if (result === undefined) load();
+    }
+
+    const current = results ?? tree;
 
     return (
         <div className="app">
-            <SearchForm onResult={onSearchResult} />
+            <SearchForm onResult={handleSearchResult} />
 
             {isEmpty ? (
                 <p className="search-empty">Ничего не найдено</p>
-            ) : (
-                tree && (
-                    <ul className="tree-root">
-                        <TreeNode
-                            node={tree}
-                            isRoot
-                            defaultExpanded
-                            expandIds={expandIds}
-                        />
-                    </ul>
-                )
-            )}
+            ) : current ? (
+                <ul className={`tree-root${results ? " search-results" : ""}`}>
+                    <TreeNode
+                        node={current}
+                        isRoot
+                        defaultExpanded
+                        onAdd={addChild}
+                        onDelete={removeChild}
+                    />
+                </ul>
+            ) : null}
         </div>
     );
 }

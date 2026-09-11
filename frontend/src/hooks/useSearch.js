@@ -1,33 +1,17 @@
 import { useState } from "react";
 
-function collectIds(node, ids = new Set()) {
-    if (!node) return ids;
-    const children = node.children ?? [];
-    if (children.length > 0) {
-        ids.add(node.id);
-        for (const child of children) {
-            collectIds(child, ids);
-        }
-    }
-    return ids;
-}
-
 function useSearch() {
-    const [expandIds, setExpandIds] = useState(undefined);
-    const [isEmpty, setIsEmpty] = useState(false);
+    const [results, setResults] = useState();
 
     function onSearchResult(result) {
         if (result === undefined) {
-            setExpandIds(undefined);
-            setIsEmpty(false);
+            setResults(undefined);
             return;
         }
-
-        setIsEmpty(result.tree?.length === 0);
-        setExpandIds(collectIds(result.tree));
+        setResults(result.tree ?? null);
     }
 
-    return { expandIds, isEmpty, onSearchResult };
+    return { results, isEmpty: results === null, onSearchResult };
 }
 
 export { useSearch };

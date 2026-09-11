@@ -9,11 +9,12 @@ function TreeNode({
     isRoot = false,
     defaultExpanded = false,
     onDeleted,
-    expandIds,
+    onAdd,
+    onDelete,
 }) {
     const [adding, setAdding] = useState(false);
     const { children, expanded, toggle, addChild, removeChild } =
-        useNodeChildren(node, { defaultExpanded, expandIds });
+        useNodeChildren(node, { defaultExpanded, onAdd, onDelete });
     const isFolder = node.type === "folder";
 
     async function handleDelete() {
@@ -67,8 +68,10 @@ function TreeNode({
                         <TreeNode
                             key={child.id}
                             node={child}
+                            defaultExpanded={defaultExpanded && child.children !== undefined}
                             onDeleted={removeChild}
-                            expandIds={expandIds}
+                            onAdd={onAdd}
+                            onDelete={onDelete}
                         />
                     ))}
                 </ul>

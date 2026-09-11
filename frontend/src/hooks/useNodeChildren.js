@@ -1,15 +1,34 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as api from "../api/items";
-import * as sync from "../utils/treeSync";
 
 const childrenCache = new Map();
 
-function useNodeChildren(node, { defaultExpanded = false, expandIds } = {}) {
+function invalidateCache(tree) {
+    if (!tree) return;
+    const stack = [tree];
+    while (stack.length) {
+        const node = stack.pop();
+        childrenCache.delete(node.id);
+        if (node.children) stack.push(...node.children);
+    }
+}
+
+function useNodeChildren(node, { defaultExpanded = false, onAdd, onDelete } = {}) {
     const [children, setChildrenState] = useState(() => {
         if (node.children !== undefined) return node.children;
         return childrenCache.get(node.id) ?? null;
     });
     const [manualExpanded, setManualExpanded] = useState(defaultExpanded);
+    const prevNodeRef = useRef(node);
+
+    useEffect(() => {
+        if (prevNodeRef.current === node) return;
+        prevNodeRef.current = node;
+        setChildrenState(
+            node.children !== undefined ? node.children : childrenCache.get(node.id) ?? null
+        );
+        setManualExpanded(defaultExpanded);
+    });
 
     function setChildren(value) {
         if (value) childrenCache.set(node.id, value);
@@ -22,55 +41,29 @@ function useNodeChildren(node, { defaultExpanded = false, expandIds } = {}) {
         setChildren(data);
     }
 
-    useEffect(() => {
-        if (!expandIds) return;
-
-        if (expandIds.has(node.id)) {
-            setManualExpanded(true);
-            if (children === null) {
-                loadChildren();
-            }
-        } else {
-            setManualExpanded(false);
-        }
-    }, [expandIds]);
-
-    useEffect(() => {
-        sync.registerRefetch(node.id, async () => {
-            const loaded = childrenCache.has(node.id) || node.children !== undefined;
-
-            if (!loaded) return;
-            const data = await api.getChildren(node.id);
-            setChildren(data);
-        });
-    }, [node.id]);
-
     async function toggle() {
-        if (manualExpanded) {
-            setManualExpanded(false);
-            return;
-        }
-
-        if (children === null) {
+        if (!manualExpanded && children === null) {
             await loadChildren();
         }
-
-        setManualExpanded(true);
+        setManualExpanded((prev) => !prev);
     }
 
     async function addChild({ name, type }) {
         const created = await api.createItem({ name, type, parentId: node.id });
-        sync.writeDirtyNode(node.id);
         if (children !== null) {
             setChildren([...children, created]);
+        } else {
+            await loadChildren();
         }
+        setManualExpanded(true);
+        onAdd?.(node.id, created);
         return created;
     }
 
     async function removeChild(id) {
         await api.deleteItem(id);
-        sync.writeDirtyNode(node.id);
         setChildren(children.filter((child) => child.id !== id));
+        onDelete?.(id);
     }
 
     return {
@@ -82,4 +75,4 @@ function useNodeChildren(node, { defaultExpanded = false, expandIds } = {}) {
     };
 }
 
-export { useNodeChildren };
+export { useNodeChildren, invalidateCache };
