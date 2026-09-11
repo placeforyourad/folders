@@ -19,7 +19,7 @@ function TreeNode({
 
     async function handleDelete() {
         if (!confirm(`Удалить «${node.name}»?`)) return;
-        onDeleted ? await onDeleted(node.id) : await removeChild(node.id);
+        await onDeleted(node.id);
     }
 
     async function handleCreate(input) {
