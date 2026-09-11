@@ -50,11 +50,7 @@ function useNodeChildren(node, { defaultExpanded = false, onAdd, onDelete } = {}
 
     async function addChild({ name, type }) {
         const created = await api.createItem({ name, type, parentId: node.id });
-        if (children !== null) {
-            setChildren([...children, created]);
-        } else {
-            await loadChildren();
-        }
+        await loadChildren();
         setManualExpanded(true);
         onAdd?.(node.id, created);
         return created;
